@@ -1,4 +1,3 @@
-from __future__ import division
 from cdzproject.db.basic_table import BasicTable
 from cdzproject.db.one_to_many_table import OneToManyTable
 
@@ -8,7 +7,7 @@ class Database:
     def __init__(self):
         """This is a wrapper for a data structure that is used to
         maintain the relationships between clusters and nodes, and node/node_manager.
-;        """
+        """
         self.nodes = BasicTable('nodes')
         self.clusters = BasicTable('clusters')
 
@@ -18,17 +17,17 @@ class Database:
 
     def add_node(self, node, cluster, initial=False):
         """
+        Adds a node and its associated cluster to the database.
 
-        :param node:
-        :param cluster:
-        :param initial:
-        :return:
+        :param node: The node to be added.
+        :param cluster: The cluster associated with the node.
+        :param initial: Whether this is an initial addition (default: False).
         """
-        print ">> adding node:", node.name, "(initial)" if initial else ""
+        print(f">> adding node: {node.name} (initial)" if initial else f">> adding node: {node.name}")
         self.nodes.add(node)
         self.clusters.add(cluster)
 
-        # We are always making a new clusters and a new node
+        # We are always making a new cluster and a new node
         self.nodes_to_clusters.add(node, [cluster], [1])
         self.clusters_to_nodes.add(cluster, [node], [1])
 
@@ -37,19 +36,19 @@ class Database:
 
     def add_cluster(self, cluster):
         """
+        Adds a cluster to the database.
 
-        :param cluster:
-        :return:
+        :param cluster: The cluster to be added.
         """
         raise Exception('This should never be called. Clusters are automatically added with new nodes.')
 
     def delete_node(self, node):
         """
+        Deletes a node from the database.
 
-        :param node:
-        :return:
+        :param node: The node to be deleted.
         """
-        print ">> removing node:", node.name
+        print(f">> removing node: {node.name}")
         self.nodes.remove(node)
 
         clusters = self.get_nodes_clusters(node)
@@ -61,12 +60,12 @@ class Database:
 
     def _delete_cluster(self, cluster, force=False):
         """
+        Deletes a cluster from the database.
 
-        :param cluster:
-        :param force:
-        :return:
+        :param cluster: The cluster to be deleted.
+        :param force: Whether to force deletion even if the cluster has related nodes (default: False).
         """
-        print ">> removing cluster:", cluster.name
+        print(f">> removing cluster: {cluster.name}")
 
         if force:
             nodes = self.get_clusters_nodes(cluster)
@@ -74,7 +73,7 @@ class Database:
                 self.nodes_to_clusters.remove_related_item(node, cluster)
                 self.clusters_to_nodes.remove_related_item(cluster, node)
 
-                # if the node only had this as the cluster then lets remove the node
+                # If the node only had this as the cluster, then let's remove the node
                 if len(self.get_nodes_clusters(node)) == 0:
                     self.delete_node(node)
 
@@ -89,10 +88,11 @@ class Database:
 
     def get_clusters_nodes(self, cluster, include_strengths=False):
         """
+        Retrieves the nodes associated with a cluster.
 
-        :param cluster:
-        :param include_strengths:
-        :return:
+        :param cluster: The cluster to query.
+        :param include_strengths: Whether to include relationship strengths (default: False).
+        :return: A list of nodes or a tuple (nodes, strengths) if `include_strengths` is True.
         """
         data = self.clusters_to_nodes.get(cluster)
 
@@ -103,10 +103,12 @@ class Database:
 
     def get_nodes_clusters(self, node, include_strengths=False, include_all=False):
         """
+        Retrieves the clusters associated with a node.
 
-        :param node:
-        :param include_strengths:
-        :return:
+        :param node: The node to query.
+        :param include_strengths: Whether to include relationship strengths (default: False).
+        :param include_all: Whether to include all details (default: False).
+        :return: A list of clusters or a tuple (clusters, strengths, position, count) if `include_all` is True.
         """
         data = self.nodes_to_clusters.get(node)
 
@@ -119,19 +121,21 @@ class Database:
 
     def get_node_managers_nodes(self, node_manager):
         """
+        Retrieves the nodes managed by a node manager.
 
-        :param node_manager:
-        :return:
+        :param node_manager: The node manager to query.
+        :return: A list of nodes managed by the node manager.
         """
         return self.node_manager_to_nodes.get(node_manager)['list']
 
     def adjust_node_to_cluster_strength(self, node, cluster, amount, last_encoding):
-        """ Amount is a quantity that is added not multiplied.
+        """
+        Adjusts the strength of the relationship between a node and a cluster.
 
-        :param node:
-        :param cluster:
-        :param amount:
-        :return:
+        :param node: The node involved in the relationship.
+        :param cluster: The cluster involved in the relationship.
+        :param amount: The quantity to adjust the relationship strength by.
+        :param last_encoding: The last encoding associated with the relationship.
         """
         is_node_related = self.nodes_to_clusters.is_related(node, cluster)
         is_cluster_related = self.nodes_to_clusters.is_related(node, cluster)
@@ -144,24 +148,23 @@ class Database:
             self.nodes_to_clusters.add_related_item(node, cluster, amount, last_encoding)
             self.clusters_to_nodes.add_related_item(cluster, node, amount)
         else:
-            # increase the relationship strength
+            # Increase the relationship strength
             self.nodes_to_clusters.increase_relationship_strength(node, cluster, amount, last_encoding)
 
     def adjust_cluster_to_node_strength(self, cluster, node, amount):
         """
+        Adjusts the strength of the relationship between a cluster and a node.
 
-        :param cluster:
-        :param node:
-        :param amount:
-        :return:
+        :param cluster: The cluster involved in the relationship.
+        :param node: The node involved in the relationship.
+        :param amount: The quantity to adjust the relationship strength by.
         """
         self.clusters_to_nodes.increase_relationship_strength(cluster, node, amount)
 
     def cleanup(self):
-        """Performs maintenance on the system.
-            - Deletes clusters that are underutilized
-
-        :return:
+        """
+        Performs maintenance on the system.
+        - Deletes clusters that are underutilized.
         """
         # Deletes clusters that are underutilized
         clusters_to_delete = []
@@ -174,9 +177,8 @@ class Database:
             self._delete_cluster(cluster, force=True)
 
     def verify_data_integrity(self):
-        """Verifies the consistency of data in the DB.
-
-        :return:
+        """
+        Verifies the consistency of data in the database.
         """
         self.nodes.verify_data_integrity()
         self.clusters.verify_data_integrity()
@@ -185,8 +187,10 @@ class Database:
         self.node_manager_to_nodes.verify_data_integrity()
 
         def _cross_table_validation(table1, table2):
-            """Validation on the relationships between tables."""
-            for item_name, data in table1.data.iteritems():
+            """
+            Validates the relationships between two tables.
+            """
+            for item_name, data in table1.data.items():  # Use .items() instead of .iteritems()
                 related_items = data['list']
                 item = data['obj']
 
@@ -194,7 +198,7 @@ class Database:
                 for related_item in related_items:
                     # Verify every cluster that is referenced by a node exists in the cluster list
                     assert table2.get(related_item)
-                    # verify the node is in the cluster's node_list
+                    # Verify the node is in the cluster's node list
                     assert table2.is_related(related_item, item)
 
         # Run cross-table validation

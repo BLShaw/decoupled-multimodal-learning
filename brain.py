@@ -47,7 +47,7 @@ class Brain:
         """
         self.timestep += amount
 
-    def recieve_sensory_input(self, cortex, data, learn=True):
+    def receive_sensory_input(self, cortex, data, learn=True):
         """Takes sensory data and sends it to the cortex specified
 
         Args:
@@ -59,7 +59,7 @@ class Brain:
 
     def cleanup(self, force=False, delete_new_items=False):
         """Performs maintenance. Deletes unused nodes/clusters.
-        Only runs if the timestep is a multiple of config.BRN_CLEANUP_FREQUENCY , or force=True
+        Only runs if the timestep is a multiple of config.BRN_CLEANUP_FREQUENCY, or force=True
 
         Args:
             force (bool, False): Default to false
@@ -67,21 +67,21 @@ class Brain:
                                             for performing measurements at the end of learning.
         """
         if force or delete_new_items or self.timestep % config.BRN_CLEANUP_FREQUENCY == 0:
-            print "====== Start cleanup ====="
+            print("====== Start cleanup =====")
             for cortex in self.cortices.values():
                 cortex.cleanup(delete_new_items=delete_new_items)
 
             db.cleanup()
             self.build_nrnd_indexes(force=True)
-            print "====== End cleanup ======"
+            print("====== End cleanup ======")
 
     def create_new_nodes(self):
         """Creates new nodes in each cortex as needed."""
         if self.timestep % config.BRN_NEURAL_GROWTH_FREQUENCY == 0:
-            print "====== Start neural growth ====="
+            print("====== Start neural growth =====")
             for cortex in self.cortices.values():
                 cortex.create_new_nodes()
-            print "====== End neural growth ======="
+            print("====== End neural growth =======")
 
     def build_nrnd_indexes(self, force=False):
         """Builds the nearest node index. This is used to increase the performance of the algorithm.

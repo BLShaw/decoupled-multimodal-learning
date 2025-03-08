@@ -5,8 +5,15 @@ import matplotlib.pyplot as plt
 
 
 def plot_figure(encodings, labels, save_path):
+    """
+    Plots a scatter plot of t-SNE results and saves the figure.
+
+    :param encodings: t-SNE transformed encodings (2D array).
+    :param labels: Labels corresponding to the encodings.
+    :param save_path: Path to save the generated figure.
+    """
     rcParams['figure.figsize'] = 5, 5
-    plt.scatter(encodings[:, 0], encodings[:, 1], c=labels)
+    plt.scatter(encodings[:, 0], encodings[:, 1], c=labels, cmap='tab10')  # Use 'tab10' colormap for better visualization
     frame1 = plt.gca()
     frame1.axes.get_xaxis().set_ticks([])
     frame1.axes.get_yaxis().set_ticks([])
@@ -16,13 +23,21 @@ def plot_figure(encodings, labels, save_path):
 
 
 def generate_tsne(encodings_path, labels_path):
-    encodings = np.load(open(encodings_path, 'r'))
-    labels = np.load(open(labels_path, 'r'))
+    """
+    Generates t-SNE embeddings for the given encodings and labels.
+
+    :param encodings_path: Path to the encodings file (.npy).
+    :param labels_path: Path to the labels file (.npy).
+    """
+    encodings = np.load(encodings_path, allow_pickle=True)  # Use allow_pickle=True for compatibility
+    labels = np.load(labels_path, allow_pickle=True)
+
     tsne_model = TSNE(verbose=4)
 
-    # Only draw a subsets as we don't want to crowd the image
-    encodings_subset = encodings[0:min(len(encodings), 15000)]
-    labels_subset = labels[0:min(len(encodings), 15000)]
+    # Only draw a subset as we don't want to crowd the image
+    subset_size = min(len(encodings), 15000)
+    encodings_subset = encodings[:subset_size]
+    labels_subset = labels[:subset_size]
 
     tsne_results = tsne_model.fit_transform(encodings_subset)
     plot_figure(tsne_results, labels_subset, encodings_path)
