@@ -1,3 +1,7 @@
+Updated .py files for Python3 compatability.
+
+---
+
 ## A Decoupled, Generative, Unsupervised, Multimodal Architecture For Real-World Agents.
 
 ![Architecture](https://github.com/jakobovski/decoupled-multimodal-learning/raw/master/assets/reward_architecture_schematic.png "Architecture")
