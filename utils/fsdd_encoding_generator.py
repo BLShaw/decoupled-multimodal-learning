@@ -1,3 +1,4 @@
+import numpy as np
 from free_spoken_digit_dataset.utils.fsdd import FSDD
 from cdzproject.modules.autoencoder.autoencoder import Autoencoder
 
@@ -7,8 +8,13 @@ def generate_encodings():
     Generates encodings for the Free Spoken Digit Dataset (FSDD).
     """
     # Load spectrograms and labels from the FSDD dataset
-    images, labels = FSDD.get_spectrograms()
-    labels = [int(label) for label in labels]  # Ensure labels are integers
+    spectrogram_generator = FSDD.get_spectrograms()
+    images = []
+    labels = []
+
+    for spectrogram, label, _ in spectrogram_generator:
+        images.append(np.array(spectrogram))
+        labels.append(int(label))
 
     # Split into train and test sets
     train_images = []
@@ -32,7 +38,7 @@ def generate_encodings():
     # Initialize the autoencoder
     # Many epochs are used because the training set is small and the learning rate is low.
     autoencoder = Autoencoder(
-        neurons_per_layer=[4096, 256, 64],
+        neurons_per_layer=[16384, 4096, 256, 64],  # Updated input size to 16384
         pretrain=True,
         pretrain_epochs=20,
         finetune_epochs=500,
