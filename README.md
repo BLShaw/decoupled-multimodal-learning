@@ -168,7 +168,7 @@ You will also need to rename the project's directory from `decoupled-multimodal-
 ren decoupled-multimodal-learning cdzproject
 ```
 ##### Generating encodings
-Before you can run you will need to generate MNIST and FSDD encodings. In order to do so, clone the [free_spoken_digit_dataset]((https://github.com/BLShaw/free_spoken_digit_dataset)) and add its parent directory to your `PYTHONPATH`.
+Before you can run you will need to generate MNIST and FSDD encodings. In order to do so, clone the [free_spoken_digit_dataset](https://github.com/BLShaw/free_spoken_digit_dataset) and add its parent directory to your `PYTHONPATH`.
 ```
 $env:PYTHONPATH = "$env:PYTHONPATH;$(Get-Location)"
 ```
